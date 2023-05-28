@@ -46,15 +46,21 @@ for epoch in range(1,2):
         clothes = data['clothes']
         ##edge is extracted from the clothes image with the built-in function in python
         edge = data['edge']
-        edge = torch.FloatTensor((edge.detach().numpy() > 0.5).astype(np.int))
+
+        print(real_image.shape)
+        print(clothes.shape)
+        print(edge.shape)
+
+        edge = torch.FloatTensor((edge.detach().numpy() > 0.5).astype(np.int64))
         clothes = clothes * edge        
 
         flow_out = warp_model(real_image.cuda(), clothes.cuda())
         warped_cloth, last_flow, = flow_out
         warped_edge = F.grid_sample(edge.cuda(), last_flow.permute(0, 2, 3, 1),
-                          mode='bilinear', padding_mode='zeros')
+                          mode='bilinear', padding_mode='zeros', align_corners=True)
 
         gen_inputs = torch.cat([real_image.cuda(), warped_cloth, warped_edge], 1)
+        print(gen_inputs.shape, "sad")
         gen_outputs = gen_model(gen_inputs)
         p_rendered, m_composite = torch.split(gen_outputs, [3, 1], 1)
         p_rendered = torch.tanh(p_rendered)

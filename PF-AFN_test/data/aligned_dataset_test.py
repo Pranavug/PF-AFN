@@ -31,6 +31,7 @@ class AlignedDataset(BaseDataset):
         I = Image.open(I_path).convert('RGB')
 
         params = get_params(self.opt, I.size)
+        print(I.size, "tretre")
         transform = get_transform(self.opt, params)
         transform_E = get_transform(self.opt, params, method=Image.NEAREST, normalize=False)
 
